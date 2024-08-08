@@ -3,12 +3,18 @@ component name="weatherAPI"{
 	variables.api_version	= "v1"
 	variables.content_type 	= "json"
 	variables.api_key 		= "";
+	// include air quality reports
+	variables.aqi			= 0;
+	// include weather alerts
+	variables.alerts		= 0;
 
 	public weatherAPI function init(
 		required string api_key,
 		string api_base_url,
 		string api_version,
-		string content_type
+		string content_type,
+		boolean aqi,
+		boolean alerts
 	){	
 		for(local.key in arguments){
 			if(arguments.keyExists(key) && arguments[key].len())
@@ -74,8 +80,8 @@ component name="weatherAPI"{
 	**/
 	public struct function current(
 		required string location,
-		boolean aqi = 0,
-		boolean alerts = 0
+		boolean aqi = variables.aqi,
+		boolean alerts = variables.alerts
 	){
 		return api_request(
 			request_uri: generate_api_url(api_endpoint=getFunctionCalledName()),
@@ -95,8 +101,8 @@ component name="weatherAPI"{
 	public struct function forecast(
 		required string location,
 		numeric days = 1,
-		boolean aqi = 0,
-		boolean alerts = 0
+		boolean aqi = variables.aqi,
+		boolean alerts = variables.alerts
 	){
 		return api_request(
 			request_uri: generate_api_url(api_endpoint=getFunctionCalledName()),
@@ -118,8 +124,8 @@ component name="weatherAPI"{
 	public struct function history(
 		required string location,
 		required string dt = now(),
-		boolean aqi = 0,
-		boolean alerts = 0
+		boolean aqi = variables.aqi,
+		boolean alerts = variables.alerts
 	){
 		return api_request(
 			request_uri: generate_api_url(api_endpoint=getFunctionCalledName()),
@@ -129,6 +135,89 @@ component name="weatherAPI"{
 								{type:"url", name:"aqi", value:yesNoFormat(arguments.aqi)},
 								{type:"url", name:"alerts", value:yesNoFormat(arguments.alerts)},
 								{type:"url", name:"dt", value:arguments.dt.dateFormat("yyyy-MM-dd")}
+							]
+		);
+	}
+
+	/**
+	*	future() - future weather for a specific time span in a location
+	*	@location - string for U.S zip code, U.K. zip code, IP Address, Latitude/Longitude
+	*	@dt - For future API 'dt' should be between 14 days and 300 days from today in the future in yyyy-MM-dd format (i.e. dt=2023-01-01)
+	**/
+	public struct function future(
+		required string location,
+		required string dt,
+		boolean aqi = variables.aqi,
+		boolean alerts = variables.alerts
+	){
+		return api_request(
+			request_uri: generate_api_url(api_endpoint=getFunctionCalledName()),
+			method: "get",
+			request_params: [
+								{type:"url", name:"q", value:arguments.location},
+								{type:"url", name:"dt", value:dateFormat(arguments.dt, "yyyy-MM-dd")},
+								{type:"url", name:"aqi", value:yesNoFormat(arguments.aqi)},
+								{type:"url", name:"alerts", value:yesNoFormat(arguments.alerts)}
+							]
+		);
+	}
+
+	/**
+	*	marine() - marine/sailing weather for a location, depending on api membership level
+	*	@location - string for U.S zip code, U.K. zip code, IP Address, Latitude/Longitude
+	**/
+	public struct function marine(
+		required string location,
+		boolean aqi = variables.aqi,
+		boolean alerts = variables.alerts
+	){
+		return api_request(
+			request_uri: generate_api_url(api_endpoint=getFunctionCalledName()),
+			method: "get",
+			request_params: [
+								{type:"url", name:"q", value:arguments.location},
+								{type:"url", name:"aqi", value:yesNoFormat(arguments.aqi)},
+								{type:"url", name:"alerts", value:yesNoFormat(arguments.alerts)}
+							]
+		);
+	}
+
+	/**
+	*	ip() - ip location, 
+	*	@location - string for U.S zip code, U.K. zip code, IP Address, Latitude/Longitude
+	**/
+	public struct function ip(
+		required string location,
+		boolean aqi = variables.aqi,
+		boolean alerts = variables.alerts
+	){
+		return api_request(
+			request_uri: generate_api_url(api_endpoint=getFunctionCalledName()),
+			method: "get",
+			request_params: [
+								{type:"url", name:"q", value:arguments.location},
+								{type:"url", name:"aqi", value:yesNoFormat(arguments.aqi)},
+								{type:"url", name:"alerts", value:yesNoFormat(arguments.alerts)}
+							]
+		);
+	}
+
+	/**
+	*	astronomy() - astronomy information for a location, 
+	*	@location - string for U.S zip code, U.K. zip code, IP Address, Latitude/Longitude
+	**/
+	public struct function astronomy(
+		required string location,
+		boolean aqi = variables.aqi,
+		boolean alerts = variables.alerts
+	){
+		return api_request(
+			request_uri: generate_api_url(api_endpoint=getFunctionCalledName()),
+			method: "get",
+			request_params: [
+								{type:"url", name:"q", value:arguments.location},
+								{type:"url", name:"aqi", value:yesNoFormat(arguments.aqi)},
+								{type:"url", name:"alerts", value:yesNoFormat(arguments.alerts)}
 							]
 		);
 	}
